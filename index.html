@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Osiris · Agricultura Inteligente</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #f5f0e8;
+    --earth: #2d2416;
+    --olive: #5c7a3e;
+    --olive-light: #7aa05a;
+    --amber: #c97d2f;
+    --amber-light: #e8a04a;
+    --cream: #faf7f2;
+    --muted: #8a7d6b;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--cream);
+    color: var(--earth);
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Syne', sans-serif;
+  }
+
+  /* ─── GRAIN OVERLAY ─── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    background: rgba(250,247,242,0.88);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(45,36,22,0.08);
+  }
+
+  /* ─── HERO ─── */
+  .hero-bg {
+    background: linear-gradient(160deg, #1a2e12 0%, #2d4a1e 40%, #3d5c28 70%, #2d2416 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% 60%, rgba(201,125,47,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 30%, rgba(92,122,62,0.3) 0%, transparent 50%);
+  }
+
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: linear-gradient(to bottom, transparent, var(--cream));
+  }
+
+  /* ─── GRID PATTERN ─── */
+  .grid-pattern {
+    background-image:
+      linear-gradient(rgba(45,36,22,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,36,22,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* ─── CARDS ─── */
+  .card-glass {
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(45,36,22,0.1);
+    backdrop-filter: blur(8px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card-glass:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(45,36,22,0.12);
+  }
+
+  .card-dark {
+    background: rgba(26,46,18,0.95);
+    border: 1px solid rgba(92,122,62,0.3);
+  }
+
+  /* ─── BADGE ─── */
+  .badge-olive {
+    background: rgba(92,122,62,0.12);
+    color: var(--olive);
+    border: 1px solid rgba(92,122,62,0.25);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ─── BUTTONS ─── */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--olive) 0%, var(--olive-light) 100%);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px rgba(92,122,62,0.35);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(92,122,62,0.45);
+  }
+
+  .btn-amber {
+    background: linear-gradient(135deg, var(--amber) 0%, var(--amber-light) 100%);
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px rgba(201,125,47,0.35);
+  }
+  .btn-amber:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(201,125,47,0.5);
+  }
+
+  .btn-ghost {
+    border: 1.5px solid rgba(245,240,232,0.35);
+    color: rgba(245,240,232,0.85);
+    font-family: 'Syne', sans-serif;
+    font-weight: 500;
+    transition: all 0.25s ease;
+  }
+  .btn-ghost:hover {
+    background: rgba(245,240,232,0.1);
+    border-color: rgba(245,240,232,0.6);
+    color: white;
+  }
+
+  /* ─── STAT PILL ─── */
+  .stat-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+  }
+
+  /* ─── DIVIDER ─── */
+  .divider-earth {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(45,36,22,0.15), transparent);
+  }
+
+  /* ─── TIMELINE STEP ─── */
+  .step-number {
+    background: linear-gradient(135deg, var(--olive), var(--olive-light));
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ─── PLAN CARD ─── */
+  .plan-popular {
+    background: linear-gradient(160deg, #1a2e12, #2d4a1e);
+    border: 1px solid rgba(122,160,90,0.4);
+    color: white;
+    transform: scale(1.03);
+    box-shadow: 0 30px 60px rgba(26,46,18,0.35);
+  }
+
+  .plan-card {
+    background: rgba(255,255,255,0.85);
+    border: 1px solid rgba(45,36,22,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .plan-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(45,36,22,0.1);
+  }
+
+  /* ─── WHATSAPP MOCKUP ─── */
+  .wa-bubble {
+    background: #dcf8c6;
+    border-radius: 12px 12px 3px 12px;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.5;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  .wa-phone {
+    background: linear-gradient(160deg, #1a1a2e, #0f2027);
+    border: 6px solid #2d2d3a;
+    border-radius: 32px;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .wa-screen {
+    background: #e5ddd5;
+    border-radius: 26px;
+    overflow: hidden;
+  }
+  .wa-header {
+    background: linear-gradient(135deg, #075e54, #128c7e);
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.4); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% center; }
+    to { background-position: 200% center; }
+  }
+
+  .animate-fade-up { animation: fadeUp 0.7s ease forwards; }
+  .animate-fade-in { animation: fadeIn 0.8s ease forwards; }
+
+  .delay-100 { animation-delay: 0.1s; opacity: 0; }
+  .delay-200 { animation-delay: 0.2s; opacity: 0; }
+  .delay-300 { animation-delay: 0.3s; opacity: 0; }
+  .delay-400 { animation-delay: 0.4s; opacity: 0; }
+  .delay-500 { animation-delay: 0.5s; opacity: 0; }
+
+  .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+  .float { animation: float 4s ease-in-out infinite; }
+
+  /* ─── INTERSECTION OBSERVER CLASSES ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+
+  /* ─── FAQ ACCORDION ─── */
+  .faq-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+  .faq-item.open .faq-content {
+    max-height: 200px;
+  }
+  .faq-icon {
+    transition: transform 0.3s ease;
+  }
+  .faq-item.open .faq-icon {
+    transform: rotate(45deg);
+  }
+
+  /* ─── TABS ─── */
+  .tab-btn.active {
+    background: var(--olive);
+    color: white;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: grid; }
+
+  /* ─── LOGO TECH ─── */
+  .tech-logo {
+    opacity: 0.45;
+    filter: grayscale(1);
+    transition: opacity 0.3s, filter 0.3s;
+  }
+  .tech-logo:hover {
+    opacity: 0.8;
+    filter: grayscale(0);
+  }
+
+  /* ─── BEFORE/AFTER ─── */
+  .scenario-before {
+    background: linear-gradient(135deg, #3d1515, #5c2020);
+    border: 1px solid rgba(220,50,50,0.25);
+  }
+  .scenario-after {
+    background: linear-gradient(135deg, #152e12, #1d4018);
+    border: 1px solid rgba(92,160,62,0.3);
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--cream); }
+  ::-webkit-scrollbar-thumb { background: rgba(45,36,22,0.2); border-radius: 3px; }
+
+  /* ─── SECTION DECORATION ─── */
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--olive);
+  }
+
+  /* ─── DIAGRAM ARROW ─── */
+  .diagram-arrow {
+    width: 2px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--olive-light), var(--amber));
+    margin: 0 auto;
+    position: relative;
+  }
+  .diagram-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--amber);
+  }
+
+  /* Mobile nav toggle */
+  #mobile-menu { display: none; }
+  #mobile-menu.open { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 0 — NAV
+═══════════════════════════════════════════ -->
+<nav class="fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg,#5c7a3e,#7aa05a)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="3" fill="white"/>
+          <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M11.5 4.5l-1.4 1.4M4.9 11.5l-1.4 1.4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:#2d2416;letter-spacing:-0.02em">Osiris</span>
+    </a>
+
+    <!-- Desktop nav -->
+    <div class="hidden md:flex items-center gap-7">
+      <a href="#plataforma" class="text-sm font-medium hover:text-green-700 transition-colors" style="color:#5c5040">Plataforma</a>
+      <a href="#modulos" class="text-sm font-medium hover:text-green-700 transition-colors" style="color:#5c5040">Módulos</a>
+      <a href="#como-funciona" class="text-sm font-medium hover:text-green-700 transition-colors" style="color:#5c5040">Cómo funciona</a>
+      <a href="#planes" class="text-sm font-medium hover:text-green-700 transition-colors" style="color:#5c5040">Planes</a>
+      <a href="#demo" class="btn-primary px-5 py-2 rounded-full text-sm">Solicitar demo →</a>
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button id="hamburger" class="md:hidden p-2 rounded-lg" style="color:#2d2416" onclick="toggleMenu()">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M3 6h16M3 12h16M3 18h16"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="flex-col px-5 pb-5 gap-3 md:hidden" style="background:rgba(250,247,242,0.97);border-top:1px solid rgba(45,36,22,0.08)">
+    <a href="#plataforma" class="text-sm font-medium py-2 border-b" style="color:#5c5040;border-color:rgba(45,36,22,0.08)" onclick="toggleMenu()">Plataforma</a>
+    <a href="#modulos" class="text-sm font-medium py-2 border-b" style="color:#5c5040;border-color:rgba(45,36,22,0.08)" onclick="toggleMenu()">Módulos</a>
+    <a href="#como-funciona" class="text-sm font-medium py-2 border-b" style="color:#5c5040;border-color:rgba(45,36,22,0.08)" onclick="toggleMenu()">Cómo funciona</a>
+    <a href="#planes" class="text-sm font-medium py-2" style="color:#5c5040" onclick="toggleMenu()">Planes</a>
+    <a href="#demo" class="btn-primary px-5 py-2.5 rounded-full text-sm text-center mt-1" onclick="toggleMenu()">Solicitar demo →</a>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 1 — HERO
+═══════════════════════════════════════════ -->
+<section class="hero-bg min-h-screen flex items-center pt-16" id="hero">
+  <div class="relative z-10 max-w-6xl mx-auto px-5 py-24 md:py-32">
+    <div class="max-w-3xl">
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-7 animate-fade-up" style="background:rgba(92,122,62,0.2);border:1px solid rgba(122,160,90,0.3)">
+        <span class="pulse-dot w-1.5 h-1.5 rounded-full" style="background:#7aa05a"></span>
+        <span style="font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#a8d08a">Agricultura inteligente · Córdoba, España</span>
+      </div>
+
+      <h1 class="text-5xl md:text-7xl font-display font-extrabold leading-none mb-6 animate-fade-up delay-100" style="color:#f5f0e8;line-height:1.0;letter-spacing:-0.03em">
+        Tu finca,<br>
+        <span style="color:#e8a04a">bajo control.</span><br>
+        En tiempo real.
+      </h1>
+
+      <p class="text-lg md:text-xl mb-10 max-w-xl animate-fade-up delay-200 leading-relaxed" style="color:rgba(245,240,232,0.72)">
+        Osiris conecta tus sensores, tu equipo y tu gestión en una sola plataforma inteligente. Detecta problemas antes de que ocurran. Actúa desde el sofá.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 mb-16 animate-fade-up delay-300">
+        <a href="#demo" class="btn-amber px-7 py-3.5 rounded-full text-base text-center">Solicitar demo gratuita →</a>
+        <a href="#como-funciona" class="btn-ghost px-7 py-3.5 rounded-full text-base text-center">Ver cómo funciona ↓</a>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 animate-fade-up delay-400">
+        <div class="stat-pill px-4 py-3 rounded-xl text-center">
+          <div class="text-2xl font-extrabold" style="color:#e8a04a;font-family:'Syne',sans-serif">+10</div>
+          <div class="text-xs mt-0.5" style="color:rgba(245,240,232,0.6)">módulos integrados</div>
+        </div>
+        <div class="stat-pill px-4 py-3 rounded-xl text-center">
+          <div class="text-2xl font-extrabold" style="color:#e8a04a;font-family:'Syne',sans-serif">&lt;60s</div>
+          <div class="text-xs mt-0.5" style="color:rgba(245,240,232,0.6)">anomalía → alerta</div>
+        </div>
+        <div class="stat-pill px-4 py-3 rounded-xl text-center">
+          <div class="text-2xl font-extrabold" style="color:#e8a04a;font-family:'Syne',sans-serif">0</div>
+          <div class="text-xs mt-0.5" style="color:rgba(245,240,232,0.6)">conocimientos técnicos</div>
+        </div>
+        <div class="stat-pill px-4 py-3 rounded-xl text-center">
+          <div class="text-2xl font-extrabold" style="color:#e8a04a;font-family:'Syne',sans-serif">24/7</div>
+          <div class="text-xs mt-0.5" style="color:rgba(245,240,232,0.6)">desde cualquier dispositivo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 2 — BANDA CREDIBILIDAD
+═══════════════════════════════════════════ -->
+<section class="py-12 grid-pattern" style="background:var(--sand)">
+  <div class="max-w-6xl mx-auto px-5 text-center reveal">
+    <p class="text-xs font-bold uppercase tracking-widest mb-8" style="color:var(--muted);font-family:'Syne',sans-serif">Construido con tecnología de nivel empresarial · Diseñado para el agricultor real</p>
+    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+      <!-- Tech logos as SVG text -->
+      <div class="tech-logo text-base font-bold" style="font-family:'Syne',sans-serif;color:#0078d4">Microsoft Azure</div>
+      <div class="tech-logo text-base font-bold" style="font-family:'Syne',sans-serif;color:#714b67">Odoo</div>
+      <div class="tech-logo text-base font-bold" style="font-family:'Syne',sans-serif;color:#3ecf8e">Supabase</div>
+      <div class="tech-logo text-base font-bold" style="font-family:'Syne',sans-serif;color:#ef6821">n8n</div>
+      <div class="tech-logo text-base font-bold" style="font-family:'Syne',sans-serif;color:#635bff">Stripe</div>
+      <div class="tech-logo text-base font-bold" style="font-family:'Syne',sans-serif;color:#4285f4">Google Cloud</div>
+      <div class="tech-logo text-base font-bold" style="font-family:'Syne',sans-serif;color:#006633">Univ. Córdoba</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 3 — EL PROBLEMA
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" style="background:var(--cream)" id="plataforma">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="max-w-2xl mb-16 reveal">
+      <p class="section-label mb-4">El problema</p>
+      <h2 class="text-4xl md:text-5xl font-display font-extrabold mb-5 leading-tight" style="letter-spacing:-0.025em">
+        Gestionas tu finca con tres apps<br>que no se hablan.
+      </h2>
+      <p class="text-lg" style="color:var(--muted)">No es culpa tuya. El mercado te ha vendido herramientas aisladas que complican lo que deberían simplificar.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 mb-14">
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-1">
+        <div class="text-3xl mb-4">🗂️</div>
+        <h3 class="text-lg font-display font-bold mb-3">Silos por todas partes</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">El sensor de humedad en una app. La facturación en otra. El parte del equipo en papel. Tienes datos, pero no información.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-2">
+        <div class="text-3xl mb-4">📻</div>
+        <h3 class="text-lg font-display font-bold mb-3">Decisiones a ciegas</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">El tiempo lo consultas en la radio. El riego lo decides por experiencia. Los datos que necesitas para actuar no llegan a tiempo.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-3">
+        <div class="text-3xl mb-4">🐛</div>
+        <h3 class="text-lg font-display font-bold mb-3">Cuando te enteras, ya es tarde</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Una plaga que podrías haber detectado hace tres días ya arrasó el 30% de tu cosecha. No por descuido. Por falta de herramientas.</p>
+      </div>
+    </div>
+
+    <!-- Bridge -->
+    <div class="max-w-2xl mx-auto text-center reveal">
+      <div class="divider-earth mb-8"></div>
+      <p class="text-xl font-display font-semibold" style="color:var(--earth)">
+        Existe una forma mejor de gestionar tu explotación.<br>
+        <span style="color:var(--olive)">Y no requiere que te conviertas en informático.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 4 — LA SOLUCIÓN
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" style="background:#f0ebe0">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+      <p class="section-label mb-4">La solución</p>
+      <h2 class="text-4xl md:text-5xl font-display font-extrabold mb-5 leading-tight" style="letter-spacing:-0.025em">
+        Osiris conecta todo lo que ya tienes.
+      </h2>
+      <p class="text-lg" style="color:var(--muted)">Una plataforma que habla con tus sensores, tu equipo y tu gestión — y te dice exactamente qué hacer y cuándo.</p>
+    </div>
+
+    <!-- Diagram -->
+    <div class="flex flex-col items-center mb-16 reveal">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 w-full max-w-xl">
+        <div class="card-glass rounded-xl px-4 py-3 text-center text-sm font-medium" style="font-family:'Syne',sans-serif">🔌 Sensores</div>
+        <div class="card-glass rounded-xl px-4 py-3 text-center text-sm font-medium" style="font-family:'Syne',sans-serif">🌦️ Clima</div>
+        <div class="card-glass rounded-xl px-4 py-3 text-center text-sm font-medium" style="font-family:'Syne',sans-serif">👥 Equipo</div>
+        <div class="card-glass rounded-xl px-4 py-3 text-center text-sm font-medium" style="font-family:'Syne',sans-serif">📊 ERP</div>
+      </div>
+      <div class="diagram-arrow"></div>
+      <div class="my-4 px-10 py-4 rounded-2xl flex items-center gap-3" style="background:linear-gradient(135deg,#1a2e12,#3d5c28);border:1px solid rgba(122,160,90,0.4)">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(122,160,90,0.2)">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="3" fill="#7aa05a"/>
+            <path d="M8 1v2M8 13v2M1 8h2M13 8h2" stroke="#7aa05a" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="text-lg font-extrabold" style="color:white;font-family:'Syne',sans-serif;letter-spacing:-0.02em">OSIRIS</span>
+      </div>
+      <div class="diagram-arrow"></div>
+      <div class="grid grid-cols-3 gap-3 mt-4 w-full max-w-xl">
+        <div class="rounded-xl px-4 py-3 text-center text-sm font-medium text-white" style="font-family:'Syne',sans-serif;background:rgba(201,125,47,0.85)">🔔 Alertas</div>
+        <div class="rounded-xl px-4 py-3 text-center text-sm font-medium text-white" style="font-family:'Syne',sans-serif;background:rgba(92,122,62,0.9)">🧠 Decisiones</div>
+        <div class="rounded-xl px-4 py-3 text-center text-sm font-medium text-white" style="font-family:'Syne',sans-serif;background:rgba(45,36,22,0.85)">⚙️ Control</div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-1">
+        <div class="text-3xl mb-4">🔗</div>
+        <h3 class="text-lg font-display font-bold mb-3">Todo en un solo lugar</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Sensores, datos meteorológicos, gestión comercial y comunicación del equipo. Sin cambiar de pantalla. Sin exportar Excel.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-2">
+        <div class="text-3xl mb-4">🧠</div>
+        <h3 class="text-lg font-display font-bold mb-3">Una IA que responde en tu idioma</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Pregunta "¿Cómo está el olivar norte?" y recibe una respuesta técnica en lenguaje normal. 24 horas, sin curva de aprendizaje.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-3">
+        <div class="text-3xl mb-4">🔔</div>
+        <h3 class="text-lg font-display font-bold mb-3">Actúa antes de que sea tarde</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Cuando un sensor detecta una anomalía crítica, Osiris te manda una alerta por WhatsApp antes de que empiece el problema.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 5 — MÓDULOS
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" style="background:var(--cream)" id="modulos">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center max-w-2xl mx-auto mb-14 reveal">
+      <p class="section-label mb-4">Módulos</p>
+      <h2 class="text-4xl md:text-5xl font-display font-extrabold mb-5 leading-tight" style="letter-spacing:-0.025em">
+        Un ecosistema completo<br>para tu explotación.
+      </h2>
+      <p class="text-lg" style="color:var(--muted)">Osiris no es una app de sensores. Es la plataforma que lo integra todo.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex justify-center gap-2 mb-10 reveal">
+      <button class="tab-btn active px-5 py-2 rounded-full text-sm font-semibold transition-all" style="font-family:'Syne',sans-serif;border:1.5px solid rgba(92,122,62,0.3)" onclick="switchTab('campo')">🌾 Campo</button>
+      <button class="tab-btn px-5 py-2 rounded-full text-sm font-semibold transition-all" style="font-family:'Syne',sans-serif;border:1.5px solid rgba(92,122,62,0.3);color:var(--muted)" onclick="switchTab('gestion')">📊 Gestión</button>
+      <button class="tab-btn px-5 py-2 rounded-full text-sm font-semibold transition-all" style="font-family:'Syne',sans-serif;border:1.5px solid rgba(92,122,62,0.3);color:var(--muted)" onclick="switchTab('comunicacion')">📡 Comunicación</button>
+    </div>
+
+    <div id="tab-campo" class="tab-panel active grid md:grid-cols-3 gap-5">
+      <div class="card-glass rounded-2xl p-7">
+        <div class="text-3xl mb-4">🌱</div>
+        <h3 class="text-lg font-display font-bold mb-2">Monitorización IoT</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Humedad, temperatura, pH y luz de tus parcelas en tiempo real. Sin cablear. Sin complicaciones.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7">
+        <div class="text-3xl mb-4">🐛</div>
+        <h3 class="text-lg font-display font-bold mb-2">Detección de Plagas</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Sube una foto de la planta. La IA analiza el estado fitosanitario y te avisa por WhatsApp si hay riesgo.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7">
+        <div class="text-3xl mb-4">🌦️</div>
+        <h3 class="text-lg font-display font-bold mb-2">Clima de Precisión</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Datos meteorológicos vinculados a las coordenadas exactas de tu finca. No al municipio. A tu parcela.</p>
+      </div>
+    </div>
+
+    <div id="tab-gestion" class="tab-panel grid md:grid-cols-3 gap-5">
+      <div class="card-glass rounded-2xl p-7">
+        <div class="text-3xl mb-4">📊</div>
+        <h3 class="text-lg font-display font-bold mb-2">Dashboard Analítico</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Gráficas de tendencias, estado de cultivos y métricas clave. Todo visual, todo en tiempo real.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7">
+        <div class="text-3xl mb-4">🏪</div>
+        <h3 class="text-lg font-display font-bold mb-2">Tienda y ERP</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Gestión comercial, facturación automática, control de inventario y pasarela de pago integrada.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7">
+        <div class="text-3xl mb-4">🧠</div>
+        <h3 class="text-lg font-display font-bold mb-2">IA Agronómica</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Consulta en lenguaje natural sobre el estado de tu finca. Tu agrónomo digital, disponible siempre.</p>
+      </div>
+    </div>
+
+    <div id="tab-comunicacion" class="tab-panel grid md:grid-cols-2 gap-5">
+      <div class="card-glass rounded-2xl p-7">
+        <div class="text-3xl mb-4">🔔</div>
+        <h3 class="text-lg font-display font-bold mb-2">Alertas Automáticas</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Notificaciones críticas por WhatsApp sin intervención humana. Tú decides los umbrales.</p>
+      </div>
+      <div class="card-glass rounded-2xl p-7">
+        <div class="text-3xl mb-4">👥</div>
+        <h3 class="text-lg font-display font-bold mb-2">Gestión de Equipo</h3>
+        <p class="text-sm leading-relaxed" style="color:var(--muted)">Coordina operarios, asigna tareas y lleva el control del trabajo diario desde una sola interfaz.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 6 — CÓMO FUNCIONA
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" id="como-funciona" style="background:linear-gradient(160deg,#1a2e12,#2d4a1e)">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+      <p class="section-label mb-4" style="color:rgba(168,208,138,0.8)">Proceso</p>
+      <h2 class="text-4xl md:text-5xl font-display font-extrabold mb-5 leading-tight" style="color:#f5f0e8;letter-spacing:-0.025em">
+        Tres pasos. Sin técnicos.<br>Sin complicaciones.
+      </h2>
+      <p class="text-lg" style="color:rgba(245,240,232,0.6)">Osiris está diseñado para que cualquier agricultor lo ponga en marcha en menos de 24 horas.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 mb-14">
+      <div class="text-center reveal reveal-delay-1">
+        <div class="step-number mx-auto mb-5 text-lg">1</div>
+        <h3 class="text-xl font-display font-bold mb-3" style="color:#f5f0e8">Das de alta tu finca</h3>
+        <p class="text-sm leading-relaxed" style="color:rgba(245,240,232,0.6)">Introduce tus parcelas, coordenadas y tipo de cultivo en minutos. Osiris configura el resto automáticamente.</p>
+      </div>
+      <div class="text-center reveal reveal-delay-2">
+        <div class="step-number mx-auto mb-5 text-lg">2</div>
+        <h3 class="text-xl font-display font-bold mb-3" style="color:#f5f0e8">Conectas tus sensores</h3>
+        <p class="text-sm leading-relaxed" style="color:rgba(245,240,232,0.6)">Osiris los reconoce automáticamente y empieza a recibir datos desde el primer momento. Compatible con los principales fabricantes.</p>
+      </div>
+      <div class="text-center reveal reveal-delay-3">
+        <div class="step-number mx-auto mb-5 text-lg">3</div>
+        <h3 class="text-xl font-display font-bold mb-3" style="color:#f5f0e8">Tu finca trabaja para ti</h3>
+        <p class="text-sm leading-relaxed" style="color:rgba(245,240,232,0.6)">Recibes alertas, informes y recomendaciones sin hacer nada más. Mientras tú descansas, Osiris vigila.</p>
+      </div>
+    </div>
+
+    <div class="text-center reveal">
+      <a href="#planes" class="btn-amber px-8 py-3.5 rounded-full text-base inline-block">Empieza ahora — el plan Free es gratis →</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 7 — ESCENARIO REAL
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" style="background:var(--sand)">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center max-w-xl mx-auto mb-16 reveal">
+      <p class="section-label mb-4">Escenario real</p>
+      <h2 class="text-4xl md:text-5xl font-display font-extrabold mb-4 leading-tight" style="letter-spacing:-0.025em">
+        Son las 3 de la mañana.
+      </h2>
+      <p class="text-xl font-display font-medium" style="color:var(--muted)">La humedad de tu olivar acaba de caer al límite crítico.</p>
+      <p class="text-base mt-3" style="color:var(--muted)">Así reacciona Osiris mientras tú duermes.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6 mb-12">
+      <!-- SIN OSIRIS -->
+      <div class="scenario-before rounded-2xl p-7 reveal reveal-delay-1">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-2.5 h-2.5 rounded-full bg-red-400"></div>
+          <span class="font-display font-bold text-red-300 text-sm uppercase tracking-wide">Sin Osiris</span>
+        </div>
+        <p class="text-sm leading-relaxed" style="color:rgba(245,220,220,0.8)">Nadie lo sabe. El agricultor llega a la finca a las 8 de la mañana. El daño ya está hecho. Horas de estrés hídrico que podrían haberse evitado con una sola acción.</p>
+      </div>
+
+      <!-- CON OSIRIS -->
+      <div class="scenario-after rounded-2xl p-7 reveal reveal-delay-2">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+          <span class="font-display font-bold text-green-300 text-sm uppercase tracking-wide">Con Osiris</span>
+        </div>
+        <div class="space-y-2 text-sm" style="color:rgba(220,245,210,0.85)">
+          <div class="flex items-start gap-2"><span class="text-green-400 mt-0.5">→</span> Sensor detecta caída de humedad</div>
+          <div class="flex items-start gap-2"><span class="text-green-400 mt-0.5">→</span> n8n procesa la anomalía en segundos</div>
+          <div class="flex items-start gap-2"><span class="text-green-400 mt-0.5">→</span> WhatsApp al móvil con diagnóstico exacto</div>
+          <div class="flex items-start gap-2"><span class="text-green-400 mt-0.5">→</span> Agricultor activa riego desde el sofá</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WhatsApp mockup -->
+    <div class="flex justify-center reveal">
+      <div class="wa-phone w-64 p-2">
+        <div class="wa-screen">
+          <div class="wa-header px-4 py-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:rgba(255,255,255,0.2);color:white">🌿</div>
+            <div>
+              <div class="text-xs font-bold text-white" style="font-family:'Syne',sans-serif">Osiris · Alerta</div>
+              <div class="text-xs" style="color:rgba(255,255,255,0.65)">en línea</div>
+            </div>
+          </div>
+          <div class="p-4">
+            <div class="wa-bubble p-3 max-w-xs">
+              <p class="font-bold text-xs mb-1" style="color:#075e54">🔔 Alerta Osiris — Parcela Norte</p>
+              <p class="text-xs mb-1">La humedad del suelo ha bajado al <strong>18%</strong> (umbral crítico: 22%).</p>
+              <p class="text-xs mb-1">Temperatura actual: 31°C. Riesgo de estrés hídrico detectado.</p>
+              <p class="text-xs" style="color:#075e54"><strong>Recomendación:</strong> activar riego de emergencia en las próximas 2 horas.</p>
+              <div class="mt-2 text-right text-xs" style="color:#999">03:14 AM ✓✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-10 reveal">
+      <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full" style="background:rgba(92,122,62,0.12);border:1px solid rgba(92,122,62,0.25)">
+        <span style="color:var(--olive);font-size:1.2rem">⚡</span>
+        <span class="font-display font-semibold text-sm" style="color:var(--olive)">Menos de 60 segundos desde la anomalía hasta tu móvil</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 8 — PLANES
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" style="background:var(--cream)" id="planes">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+      <p class="section-label mb-4">Precios</p>
+      <h2 class="text-4xl md:text-5xl font-display font-extrabold mb-5 leading-tight" style="letter-spacing:-0.025em">
+        Un plan para cada<br>tamaño de explotación.
+      </h2>
+      <p class="text-lg" style="color:var(--muted)">Sin sorpresas. Sin letra pequeña. Empieza gratis y escala cuando lo necesites.</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-5 items-center">
+
+      <!-- Free -->
+      <div class="plan-card rounded-2xl p-8 reveal reveal-delay-1">
+        <div class="mb-6">
+          <p class="font-display font-bold text-sm uppercase tracking-wider mb-1" style="color:var(--muted)">Free</p>
+          <div class="text-4xl font-extrabold font-display" style="letter-spacing:-0.03em">Gratis</div>
+          <p class="text-sm mt-2" style="color:var(--muted)">Para agricultores que quieren empezar a digitalizar sin riesgo.</p>
+        </div>
+        <ul class="space-y-2.5 mb-8 text-sm">
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> 1 finca registrada</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> Hasta 3 sensores conectados</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> Dashboard básico</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> Alertas por email</li>
+          <li class="flex items-center gap-2 opacity-40"><span>✗</span> Alertas WhatsApp</li>
+          <li class="flex items-center gap-2 opacity-40"><span>✗</span> IA Agronómica</li>
+          <li class="flex items-center gap-2 opacity-40"><span>✗</span> Módulo ERP y tienda</li>
+        </ul>
+        <a href="#demo" class="block text-center py-3 rounded-xl border-2 font-semibold text-sm transition-all hover:border-green-700 hover:text-green-700" style="border-color:rgba(92,122,62,0.4);color:var(--olive);font-family:'Syne',sans-serif">Empieza gratis →</a>
+      </div>
+
+      <!-- Professional -->
+      <div class="plan-popular rounded-2xl p-8 reveal">
+        <div class="mb-6">
+          <div class="flex items-center gap-2 mb-2">
+            <p class="font-display font-bold text-sm uppercase tracking-wider" style="color:rgba(168,208,138,0.8)">Professional</p>
+            <span class="text-xs px-2 py-0.5 rounded-full font-bold" style="background:rgba(232,160,74,0.25);color:#e8a04a;font-family:'Syne',sans-serif">⭐ Popular</span>
+          </div>
+          <div class="text-4xl font-extrabold font-display" style="color:white;letter-spacing:-0.03em">49€<span class="text-xl font-medium" style="color:rgba(255,255,255,0.5)">/mes</span></div>
+          <p class="text-sm mt-2" style="color:rgba(255,255,255,0.55)">Para explotaciones que necesitan automatización completa.</p>
+        </div>
+        <ul class="space-y-2.5 mb-8 text-sm" style="color:rgba(245,240,232,0.85)">
+          <li class="flex items-center gap-2"><span style="color:#7aa05a">✓</span> Fincas ilimitadas</li>
+          <li class="flex items-center gap-2"><span style="color:#7aa05a">✓</span> Sensores ilimitados</li>
+          <li class="flex items-center gap-2"><span style="color:#7aa05a">✓</span> Dashboard avanzado + analíticas</li>
+          <li class="flex items-center gap-2"><span style="color:#7aa05a">✓</span> Alertas WhatsApp en tiempo real</li>
+          <li class="flex items-center gap-2"><span style="color:#7aa05a">✓</span> IA Agronómica 24/7</li>
+          <li class="flex items-center gap-2"><span style="color:#7aa05a">✓</span> Detección de plagas por foto</li>
+          <li class="flex items-center gap-2"><span style="color:#7aa05a">✓</span> Módulo ERP y tienda online</li>
+          <li class="flex items-center gap-2"><span style="color:#7aa05a">✓</span> Soporte prioritario</li>
+        </ul>
+        <a href="#demo" class="btn-amber block text-center py-3 rounded-xl font-semibold text-sm" style="font-family:'Syne',sans-serif">Solicitar demo →</a>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="plan-card rounded-2xl p-8 reveal reveal-delay-2">
+        <div class="mb-6">
+          <p class="font-display font-bold text-sm uppercase tracking-wider mb-1" style="color:var(--muted)">Enterprise</p>
+          <div class="text-4xl font-extrabold font-display" style="letter-spacing:-0.03em">A medida</div>
+          <p class="text-sm mt-2" style="color:var(--muted)">Para cooperativas, grandes explotaciones y empresas agrícolas.</p>
+        </div>
+        <ul class="space-y-2.5 mb-8 text-sm">
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> Todo lo del plan Professional</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> Integración con ERP propio</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> Despliegue en infraestructura privada</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> SLA garantizado</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> Formación presencial del equipo</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> Gestor de cuenta dedicado</li>
+          <li class="flex items-center gap-2"><span style="color:var(--olive)">✓</span> API abierta para integraciones</li>
+        </ul>
+        <a href="#demo" class="block text-center py-3 rounded-xl border-2 font-semibold text-sm transition-all hover:border-green-700 hover:text-green-700" style="border-color:rgba(92,122,62,0.4);color:var(--olive);font-family:'Syne',sans-serif">Hablar con ventas →</a>
+      </div>
+
+    </div>
+
+    <!-- Guarantee line -->
+    <div class="text-center mt-10 reveal">
+      <p class="text-sm" style="color:var(--muted)">Sin permanencia &nbsp;·&nbsp; Sin tarjeta de crédito &nbsp;·&nbsp; Configuración en menos de 24h</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 9 — PRUEBA SOCIAL / TESTIMONIOS
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" style="background:#f0ebe0">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="text-center max-w-2xl mx-auto mb-14 reveal">
+      <p class="section-label mb-4">Prueba social</p>
+      <h2 class="text-4xl md:text-5xl font-display font-extrabold mb-3 leading-tight" style="letter-spacing:-0.025em">Agricultores que ya confían en Osiris.</h2>
+      <p class="text-sm" style="color:var(--muted)">* Testimonios representativos — se actualizarán con usuarios reales al lanzar.</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-5">
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-1">
+        <p class="text-sm leading-relaxed mb-6 italic" style="color:var(--earth)">"Antes tardaba dos días en saber que había un problema en la parcela. Ahora me llega al móvil en un minuto. Eso vale lo que vale."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background:var(--olive)">MR</div>
+          <div>
+            <div class="text-sm font-display font-bold">Manuel R.</div>
+            <div class="text-xs" style="color:var(--muted)">Olivarero · Jaén · 140 ha</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-2">
+        <p class="text-sm leading-relaxed mb-6 italic" style="color:var(--earth)">"Lo que más me sorprendió fue lo fácil que fue empezar. Pensaba que necesitaba un informático. No necesité nada."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background:var(--amber)">CV</div>
+          <div>
+            <div class="text-sm font-display font-bold">Carmen V.</div>
+            <div class="text-xs" style="color:var(--muted)">Viticultora · Córdoba · 60 ha</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-glass rounded-2xl p-7 reveal reveal-delay-3">
+        <p class="text-sm leading-relaxed mb-6 italic" style="color:var(--earth)">"La detección de plagas por foto es lo que más uso. Le hago una foto a la hoja, y en segundos sé si hay problema y qué hacer."</p>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background:var(--earth)">AP</div>
+          <div>
+            <div class="text-sm font-display font-bold">Antonio P.</div>
+            <div class="text-xs" style="color:var(--muted)">Citricultor · Sevilla · 200 ha</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 10 — FAQ
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" style="background:var(--cream)">
+  <div class="max-w-3xl mx-auto px-5">
+    <div class="text-center mb-14 reveal">
+      <p class="section-label mb-4">FAQ</p>
+      <h2 class="text-4xl md:text-5xl font-display font-extrabold mb-3 leading-tight" style="letter-spacing:-0.025em">Preguntas frecuentes.</h2>
+      <p class="text-lg" style="color:var(--muted)">Resolvemos las dudas más habituales antes de que las tengas.</p>
+    </div>
+
+    <div class="space-y-3 reveal">
+      <div class="faq-item card-glass rounded-2xl overflow-hidden cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between p-6">
+          <p class="font-display font-semibold text-sm pr-4">¿Necesito conocimientos técnicos para usar Osiris?</p>
+          <span class="faq-icon text-xl flex-shrink-0" style="color:var(--olive)">+</span>
+        </div>
+        <div class="faq-content">
+          <p class="px-6 pb-6 text-sm leading-relaxed" style="color:var(--muted)">No. Osiris está diseñado específicamente para agricultores sin formación informática. Si sabes usar WhatsApp, sabes usar Osiris. La configuración inicial puede hacerse en menos de una hora y el equipo de soporte te acompaña en cada paso.</p>
+        </div>
+      </div>
+
+      <div class="faq-item card-glass rounded-2xl overflow-hidden cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between p-6">
+          <p class="font-display font-semibold text-sm pr-4">¿Funciona con cualquier tipo de sensor o solo con los vuestros?</p>
+          <span class="faq-icon text-xl flex-shrink-0" style="color:var(--olive)">+</span>
+        </div>
+        <div class="faq-content">
+          <p class="px-6 pb-6 text-sm leading-relaxed" style="color:var(--muted)">Osiris es compatible con los principales fabricantes de sensores IoT del mercado agrícola. No estás obligado a comprar hardware específico. Si ya tienes sensores instalados, es muy probable que podamos integrarlos directamente.</p>
+        </div>
+      </div>
+
+      <div class="faq-item card-glass rounded-2xl overflow-hidden cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between p-6">
+          <p class="font-display font-semibold text-sm pr-4">¿Mis datos agrícolas están seguros?</p>
+          <span class="faq-icon text-xl flex-shrink-0" style="color:var(--olive)">+</span>
+        </div>
+        <div class="faq-content">
+          <p class="px-6 pb-6 text-sm leading-relaxed" style="color:var(--muted)">Sí. Todos los datos se almacenan en servidores cifrados bajo protocolo HTTPS con copias de seguridad automáticas en la nube. Tus datos de producción, coordenadas y métricas son estrictamente privados y nunca se comparten con terceros.</p>
+        </div>
+      </div>
+
+      <div class="faq-item card-glass rounded-2xl overflow-hidden cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between p-6">
+          <p class="font-display font-semibold text-sm pr-4">¿Qué pasa si no tengo cobertura en la finca?</p>
+          <span class="faq-icon text-xl flex-shrink-0" style="color:var(--olive)">+</span>
+        </div>
+        <div class="faq-content">
+          <p class="px-6 pb-6 text-sm leading-relaxed" style="color:var(--muted)">Los sensores almacenan los datos localmente y los sincronizan con la plataforma en cuanto recuperan conexión. Las alertas críticas se envían en el momento en que el sistema detecta la anomalía y tiene acceso a internet.</p>
+        </div>
+      </div>
+
+      <div class="faq-item card-glass rounded-2xl overflow-hidden cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between p-6">
+          <p class="font-display font-semibold text-sm pr-4">¿Hay permanencia o puedo cancelar cuando quiera?</p>
+          <span class="faq-icon text-xl flex-shrink-0" style="color:var(--olive)">+</span>
+        </div>
+        <div class="faq-content">
+          <p class="px-6 pb-6 text-sm leading-relaxed" style="color:var(--muted)">Ninguna permanencia. Puedes cancelar tu suscripción en cualquier momento desde tu panel de usuario, sin penalizaciones ni trámites. Creemos que la mejor garantía es que quieras quedarte porque Osiris te aporta valor real.</p>
+        </div>
+      </div>
+
+      <div class="faq-item card-glass rounded-2xl overflow-hidden cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between p-6">
+          <p class="font-display font-semibold text-sm pr-4">¿Cuánto tiempo lleva la instalación?</p>
+          <span class="faq-icon text-xl flex-shrink-0" style="color:var(--olive)">+</span>
+        </div>
+        <div class="faq-content">
+          <p class="px-6 pb-6 text-sm leading-relaxed" style="color:var(--muted)">La configuración básica de la plataforma lleva menos de una hora. La instalación física de los sensores en campo depende del tamaño de la explotación, pero en una finca media puede completarse en una jornada de trabajo.</p>
+        </div>
+      </div>
+
+      <div class="faq-item card-glass rounded-2xl overflow-hidden cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex items-center justify-between p-6">
+          <p class="font-display font-semibold text-sm pr-4">¿Puedo integrar herramientas que ya uso, como WhatsApp o mi ERP actual?</p>
+          <span class="faq-icon text-xl flex-shrink-0" style="color:var(--olive)">+</span>
+        </div>
+        <div class="faq-content">
+          <p class="px-6 pb-6 text-sm leading-relaxed" style="color:var(--muted)">Sí. Osiris integra de forma nativa las alertas por WhatsApp, y el plan Enterprise incluye conectores para los principales ERPs del sector agrícola. Si usas una herramienta específica, consúltanos — probablemente ya tengamos la integración.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 11 — CTA FINAL
+═══════════════════════════════════════════ -->
+<section class="py-24 md:py-32" id="demo" style="background:linear-gradient(160deg,#1a2e12 0%,#2d4a1e 50%,#3a3018 100%);position:relative;overflow:hidden">
+  <!-- Decorative circle -->
+  <div style="position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(201,125,47,0.15),transparent 70%);pointer-events:none"></div>
+
+  <div class="max-w-3xl mx-auto px-5 text-center relative z-10 reveal">
+    <p class="section-label mb-6" style="color:rgba(168,208,138,0.7)">Empieza hoy</p>
+    <h2 class="text-4xl md:text-6xl font-display font-extrabold mb-6 leading-tight" style="color:#f5f0e8;letter-spacing:-0.03em">
+      Ya has visto lo que<br>Osiris puede hacer<br>
+      <span style="color:#e8a04a">por tu finca.</span>
+    </h2>
+    <p class="text-lg mb-10" style="color:rgba(245,240,232,0.65)">Empieza gratis hoy. Sin riesgos. Sin complicaciones.<br>Tu cosecha no puede esperar.</p>
+    <a href="mailto:contacto@osiris-tfp.duckdns.org" class="btn-amber inline-block px-10 py-4 rounded-full text-lg mb-6">Solicitar demo gratuita →</a>
+    <p class="text-sm" style="color:rgba(245,240,232,0.45)">Sin permanencia &nbsp;·&nbsp; Sin tarjeta de crédito &nbsp;·&nbsp; Configuración en menos de 24h</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SECCIÓN 12 — FOOTER
+═══════════════════════════════════════════ -->
+<footer class="py-16" style="background:#1a1208;color:rgba(245,240,232,0.55)">
+  <div class="max-w-6xl mx-auto px-5">
+    <div class="grid md:grid-cols-5 gap-10 mb-12">
+      <!-- Brand -->
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-2.5 mb-4">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg,#5c7a3e,#7aa05a)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="3" fill="white"/>
+              <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.1 3.1l1.4 1.4M11.5 11.5l1.4 1.4M11.5 4.5l-1.4 1.4M4.9 11.5l-1.4 1.4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:#f5f0e8;letter-spacing:-0.02em">Osiris</span>
+        </div>
+        <p class="text-sm leading-relaxed mb-5">Agricultura inteligente para el agricultor real.</p>
+        <div class="flex gap-4">
+          <a href="#" class="text-xs hover:text-green-400 transition-colors">LinkedIn</a>
+          <a href="#" class="text-xs hover:text-green-400 transition-colors">Instagram</a>
+          <a href="#" class="text-xs hover:text-green-400 transition-colors">YouTube</a>
+        </div>
+      </div>
+
+      <!-- Plataforma -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#f5f0e8;font-family:'Syne',sans-serif">Plataforma</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#modulos" class="hover:text-green-400 transition-colors">Módulos</a></li>
+          <li><a href="#modulos" class="hover:text-green-400 transition-colors">Dashboard</a></li>
+          <li><a href="#modulos" class="hover:text-green-400 transition-colors">Alertas</a></li>
+          <li><a href="#modulos" class="hover:text-green-400 transition-colors">IA Agronómica</a></li>
+          <li><a href="#planes" class="hover:text-green-400 transition-colors">Planes y precios</a></li>
+        </ul>
+      </div>
+
+      <!-- Empresa -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#f5f0e8;font-family:'Syne',sans-serif">Empresa</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a href="#" class="hover:text-green-400 transition-colors">Sobre Osiris</a></li>
+          <li><a href="#" class="hover:text-green-400 transition-colors">Noticias</a></li>
+          <li><a href="#" class="hover:text-green-400 transition-colors">Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- Legal + Contacto -->
+      <div>
+        <h4 class="text-xs font-bold uppercase tracking-wider mb-4" style="color:#f5f0e8;font-family:'Syne',sans-serif">Legal</h4>
+        <ul class="space-y-2 text-sm mb-6">
+          <li><a href="#" class="hover:text-green-400 transition-colors">Política de privacidad</a></li>
+          <li><a href="#" class="hover:text-green-400 transition-colors">Términos de uso</a></li>
+          <li><a href="#" class="hover:text-green-400 transition-colors">Política de cookies</a></li>
+          <li><a href="#" class="hover:text-green-400 transition-colors">GDPR</a></li>
+        </ul>
+        <div class="text-xs space-y-1">
+          <div>📧 contacto@osiris-tfp.duckdns.org</div>
+          <div>🌐 osiris-tfp.duckdns.org</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider-earth mb-6"></div>
+    <div class="flex flex-col md:flex-row justify-between items-center gap-2 text-xs">
+      <p>© 2026 Osiris. Todos los derechos reservados.</p>
+      <p>Proyecto universitario — Grado en Ingeniería Informática · Universidad de Córdoba.</p>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ─── JAVASCRIPT ─── -->
+<script>
+  // Mobile menu
+  function toggleMenu() {
+    const menu = document.getElementById('mobile-menu');
+    menu.classList.toggle('open');
+  }
+
+  // FAQ accordion
+  function toggleFaq(el) {
+    const wasOpen = el.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) el.classList.add('open');
+  }
+
+  // Tabs
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active');
+      b.style.color = 'var(--muted)';
+    });
+    document.getElementById('tab-' + tab).classList.add('active');
+    event.currentTarget.classList.add('active');
+    event.currentTarget.style.color = 'white';
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Nav scroll style
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    if (window.scrollY > 40) {
+      nav.style.boxShadow = '0 4px 30px rgba(45,36,22,0.1)';
+    } else {
+      nav.style.boxShadow = 'none';
+    }
+  });
+</script>
+
+</body>
+</html>
